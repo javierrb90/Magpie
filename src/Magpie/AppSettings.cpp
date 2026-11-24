@@ -133,6 +133,11 @@ static void WriteProfile(rapidjson::PrettyWriter<rapidjson::StringBuffer>& write
 	writer.Key("autoHideCursorDelay");
 	writer.Double(profile.autoHideCursorDelay);
 
+	writer.Key("scaleShortcut");
+	writer.Uint(EncodeShortcut(profile.scaleShortcut));
+	writer.Key("windowedModeScaleShortcut");
+	writer.Uint(EncodeShortcut(profile.windowedModeScaleShortcut));
+
 	writer.Key("croppingEnabled");
 	writer.Bool(profile.isCroppingEnabled);
 	writer.Key("cropping");
@@ -1066,6 +1071,17 @@ bool AppSettings::_LoadProfile(
 	}
 
 	JsonHelper::ReadEnum(profileObj, "outputAlignment", profile.outputAlignment);
+
+	{
+		uint32_t value = 0;
+		if (JsonHelper::ReadUInt(profileObj, "scaleShortcut", value)) {
+			DecodeShortcut(value, profile.scaleShortcut);
+		}
+		value = 0;
+		if (JsonHelper::ReadUInt(profileObj, "windowedModeScaleShortcut", value)) {
+			DecodeShortcut(value, profile.windowedModeScaleShortcut);
+		}
+	}
 
 	return true;
 }

@@ -67,6 +67,13 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 
 	bool IsCaptureMethodDesktopDuplication() const noexcept;
 
+	int ProfileIndex() const noexcept {
+
+		return _isDefaultProfile ? -1 : (int)_index;
+
+	}
+
+
 	int AutoScale() const noexcept;
 	void AutoScale(int value);
 

@@ -14,6 +14,9 @@ struct ShortcutControl : ShortcutControlT<ShortcutControl>, wil::notify_property
 	ShortcutAction Action() const { return _action; }
 	void Action(ShortcutAction value);
 
+	int ProfileIndex() const { return _profileIdx; }
+	void ProfileIndex(int value);
+
 	hstring Title() const { return _title; }
 	void Title(hstring value);
 
@@ -30,10 +33,18 @@ private:
 
 	void _UpdateShortcut();
 
+	bool _IsProfileShortcut() const noexcept {
+		return _profileIdx != NO_PROFILE;
+	}
+
+	static constexpr int NO_PROFILE = std::numeric_limits<int>::min();
+
 	ShortcutAction _action = ShortcutAction::COUNT_OR_NONE;
+	int _profileIdx = NO_PROFILE;
 	hstring _title;
 
 	::Magpie::Event<winrt::Magpie::ShortcutAction>::EventRevoker _shortcutChangedRevoker;
+	::Magpie::Event<>::EventRevoker _profileShortcutChangedRevoker;
 
 	::Magpie::Shortcut _shortcut;
 	ContentDialog _shortcutDialog{ nullptr };

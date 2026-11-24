@@ -5,6 +5,7 @@
 namespace Magpie {
 
 struct Profile;
+struct Shortcut;
 
 class ProfileService : public Singleton<ProfileService> {
 	friend Singleton<ProfileService>;
@@ -29,10 +30,19 @@ public:
 
 	uint32_t GetProfileCount() noexcept;
 
+	// profileIdx < 0 表示默认配置
+	Profile& GetProfileOrDefault(int profileIdx) noexcept;
+
+	const Shortcut& GetProfileShortcut(int profileIdx, bool windowedMode) noexcept;
+
+	void SetProfileShortcut(int profileIdx, bool windowedMode, const Shortcut& value);
+
 	Event<Profile&> ProfileAdded;
 	Event<uint32_t> ProfileRenamed;
 	Event<uint32_t> ProfileRemoved;
 	Event<uint32_t, bool> ProfileMoved;
+	// 任一配置文件的热键改变
+	Event<> ProfileShortcutChanged;
 
 private:
 	ProfileService() = default;

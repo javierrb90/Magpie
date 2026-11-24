@@ -173,6 +173,30 @@
 						<ComboBoxItem x:Uid="Profile_General_AutoScale_Windowed" />
 					</ComboBox>
 				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Profile_General_ScaleShortcut"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE765;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:ShortcutControl x:Uid="Profile_General_ScaleShortcut_ShortcutControl"
+					                       ProfileIndex="{x:Bind ViewModel.ProfileIndex, Mode=OneWay}">
+						<local:ShortcutControl.Action>
+							<local:ShortcutAction>Scale</local:ShortcutAction>
+						</local:ShortcutControl.Action>
+					</local:ShortcutControl>
+				</local:SettingsCard>
+				<local:SettingsCard x:Uid="Profile_General_WindowedModeScaleShortcut"
+				                    IsWrapEnabled="True">
+					<local:SettingsCard.HeaderIcon>
+						<FontIcon Glyph="&#xE765;" />
+					</local:SettingsCard.HeaderIcon>
+					<local:ShortcutControl x:Uid="Profile_General_WindowedModeScaleShortcut_ShortcutControl"
+					                       ProfileIndex="{x:Bind ViewModel.ProfileIndex, Mode=OneWay}">
+						<local:ShortcutControl.Action>
+							<local:ShortcutAction>WindowedModeScale</local:ShortcutAction>
+						</local:ShortcutControl.Action>
+					</local:ShortcutControl>
+				</local:SettingsCard>
 				<local:SettingsCard x:Uid="Profile_General_3DGameMode">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE7FC;" />

@@ -1051,4 +1051,25 @@
   <data name="Home_Advanced_DeveloperOptions_DisableTopmost.Content" xml:space="preserve">
     <value>Отключить функцию «Всегда поверх всех окон»</value>
   </data>
+  <data name="Profile_General_ScaleShortcut.Header" xml:space="preserve">
+    <value>Fullscreen scaling hotkey</value>
+  </data>
+  <data name="Profile_General_ScaleShortcut.Description" xml:space="preserve">
+    <value>Scales the foreground window with this profile, ignoring its matching rules</value>
+  </data>
+  <data name="Profile_General_ScaleShortcut_ShortcutControl.Title" xml:space="preserve">
+    <value>Fullscreen scaling hotkey for this profile</value>
+  </data>
+  <data name="Profile_General_WindowedModeScaleShortcut.Header" xml:space="preserve">
+    <value>Windowed scaling hotkey</value>
+  </data>
+  <data name="Profile_General_WindowedModeScaleShortcut.Description" xml:space="preserve">
+    <value>Scales the foreground window in windowed mode with this profile, ignoring its matching rules</value>
+  </data>
+  <data name="Profile_General_WindowedModeScaleShortcut_ShortcutControl.Title" xml:space="preserve">
+    <value>Windowed scaling hotkey for this profile</value>
+  </data>
+  <data name="ShortcutDialog_Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
 </root>

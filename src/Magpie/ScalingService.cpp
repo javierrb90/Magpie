@@ -39,6 +39,8 @@ void ScalingService::Initialize() {
 	
 	_shortcutActivatedRevoker = ShortcutService::Get().ShortcutActivated(
 		winrt::auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ShortcutPressed, this));
+	_profileShortcutActivatedRevoker = ShortcutService::Get().ProfileShortcutActivated(
+		winrt::auto_revoke, std::bind_front(&ScalingService::_ShortcutService_ProfileShortcutPressed, this));
 
 	// 立即检查前台窗口
 	_CheckForegroundTimer_Tick(nullptr, nullptr);
@@ -54,6 +56,7 @@ void ScalingService::Uninitialize() noexcept {
 	_scalingRuntime.reset();
 
 	_shortcutActivatedRevoker.Revoke();
+	_profileShortcutActivatedRevoker.Revoke();
 }
 
 void ScalingService::StartTimer(bool windowedMode) {
@@ -126,6 +129,23 @@ void ScalingService::_ShortcutService_ShortcutPressed(ShortcutAction action) {
 	default:
 		break;
 	}
+}
+
+void ScalingService::_ShortcutService_ProfileShortcutPressed(int profileIdx, bool windowedMode) {
+	if (_scalingRuntime->State() == ScalingState::Scaling) {
+		// 正在缩放时按下配置文件热键结束缩放
+		_scalingRuntime->Stop();
+		return;
+	}
+
+	const HWND hWnd = GetForegroundWindow();
+	if (!hWnd) {
+		return;
+	}
+
+	// 无视配置文件的匹配规则，使用此配置文件缩放前台窗口
+	const Profile& profile = ProfileService::Get().GetProfileOrDefault(profileIdx);
+	_StartScale(hWnd, profile, windowedMode, false);
 }
 
 void ScalingService::_CountDownTimer_Tick(winrt::DispatcherQueueTimer const&, winrt::IInspectable const&) {

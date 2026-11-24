@@ -51,6 +51,8 @@ private:
 
 	void _ShortcutService_ShortcutPressed(winrt::Magpie::ShortcutAction action);
 
+	void _ShortcutService_ProfileShortcutPressed(int profileIdx, bool windowedMode);
+
 	void _CountDownTimer_Tick(winrt::DispatcherQueueTimer const&, winrt::IInspectable const&);
 
 	void _CheckForegroundTimer_Tick(winrt::DispatcherQueueTimer const&, winrt::IInspectable const&);
@@ -69,6 +71,7 @@ private:
 	winrt::DispatcherQueueTimer _checkForegroundTimer{ nullptr };
 
 	Event<winrt::Magpie::ShortcutAction>::EventRevoker _shortcutActivatedRevoker;
+	Event<int, bool>::EventRevoker _profileShortcutActivatedRevoker;
 
 	std::chrono::steady_clock::time_point _timerStartTimePoint;
 

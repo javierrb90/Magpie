@@ -3,6 +3,8 @@
 #include "AppSettings.h"
 #include "CommonSharedConstants.h"
 #include "Logger.h"
+#include "Profile.h"
+#include "ProfileService.h"
 #include "ShortcutHelper.h"
 #include "ShortcutService.h"
 
@@ -48,6 +50,18 @@ void ShortcutService::Initialize() {
 	_shortcutChangedRevoker = AppSettings::Get().ShortcutChanged(
 		auto_revoke, std::bind_front(&ShortcutService::_AppSettings_OnShortcutChanged, this));
 
+	_RegisterProfileShortcuts();
+
+	ProfileService& profileService = ProfileService::Get();
+	_profileShortcutChangedRevoker = profileService.ProfileShortcutChanged(
+		auto_revoke, [this]() { _RegisterProfileShortcuts(); });
+	_profileAddedRevoker = profileService.ProfileAdded(
+		auto_revoke, [this](Profile&) { _RegisterProfileShortcuts(); });
+	_profileRemovedRevoker = profileService.ProfileRemoved(
+		auto_revoke, [this](uint32_t) { _RegisterProfileShortcuts(); });
+	_profileMovedRevoker = profileService.ProfileMoved(
+		auto_revoke, [this](uint32_t, bool) { _RegisterProfileShortcuts(); });
+
 	_keyboardHook.reset(SetWindowsHookEx(WH_KEYBOARD_LL, _LowLevelKeyboardProc, NULL, NULL));
 	if (!_keyboardHook) {
 		Logger::Get().Win32Error("SetWindowsHookEx 失败");
@@ -67,9 +81,15 @@ void ShortcutService::Uninitialize() noexcept {
 		}
 	}
 	
+	_UnregisterProfileShortcuts();
+	
 	_hwndHotkey.reset();
 
 	_shortcutChangedRevoker.Revoke();
+	_profileShortcutChangedRevoker.Revoke();
+	_profileAddedRevoker.Revoke();
+	_profileRemovedRevoker.Revoke();
+	_profileMovedRevoker.Revoke();
 }
 
 LRESULT ShortcutService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -78,6 +98,14 @@ LRESULT ShortcutService::_WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM
 			ShortcutAction action = (ShortcutAction)wParam;
 			Logger::Get().Info(fmt::format("热键 {} 激活（Hotkey）", ShortcutHelper::ToString(action)));
 			_FireShortcut(action);
+			return 0;
+		}
+
+		if (wParam >= (WPARAM)PROFILE_HOTKEY_ID_BASE &&
+			wParam < PROFILE_HOTKEY_ID_BASE + _profileShortcutInfos.size()) {
+			const size_t infoIdx = wParam - PROFILE_HOTKEY_ID_BASE;
+			Logger::Get().Info(fmt::format("配置文件热键 {} 激活（Hotkey）", _profileShortcutInfos[infoIdx].profileIdx));
+			_FireProfileShortcut(infoIdx);
 			return 0;
 		}
 	}
@@ -120,6 +148,91 @@ void ShortcutService::_RegisterShortcut(ShortcutAction action) {
 	if (isError) {
 		Logger::Get().Win32Error(fmt::format("注册热键 {} 失败", ShortcutHelper::ToString(action)));
 	}
+}
+
+bool ShortcutService::IsProfileShortcutError(int profileIdx, bool windowedMode) const noexcept {
+	for (const _ProfileShortcutInfo& info : _profileShortcutInfos) {
+		if (info.profileIdx == profileIdx && info.windowedMode == windowedMode) {
+			return info.isError;
+		}
+	}
+	// 空热键视为错误，和全局热键的行为一致
+	return true;
+}
+
+static UINT GetHotkeyModifiers(const Shortcut& shortcut) noexcept {
+	UINT modifiers = MOD_NOREPEAT;
+	if (shortcut.win) {
+		modifiers |= MOD_WIN;
+	}
+	if (shortcut.ctrl) {
+		modifiers |= MOD_CONTROL;
+	}
+	if (shortcut.alt) {
+		modifiers |= MOD_ALT;
+	}
+	if (shortcut.shift) {
+		modifiers |= MOD_SHIFT;
+	}
+	return modifiers;
+}
+
+void ShortcutService::_UnregisterProfileShortcuts() noexcept {
+	for (size_t i = 0; i < _profileShortcutInfos.size(); ++i) {
+		if (!_profileShortcutInfos[i].isError) {
+			UnregisterHotKey(_hwndHotkey.get(), PROFILE_HOTKEY_ID_BASE + (int)i);
+		}
+	}
+	_profileShortcutInfos.clear();
+}
+
+void ShortcutService::_RegisterProfileShortcuts() {
+	_UnregisterProfileShortcuts();
+
+	ProfileService& profileService = ProfileService::Get();
+	const int profileCount = (int)profileService.GetProfileCount();
+
+	// -1 为默认配置
+	for (int profileIdx = -1; profileIdx < profileCount; ++profileIdx) {
+		for (bool windowedMode : { false, true }) {
+			const Shortcut& shortcut = profileService.GetProfileShortcut(profileIdx, windowedMode);
+			if (shortcut.IsEmpty()) {
+				continue;
+			}
+
+			_ProfileShortcutInfo& info = _profileShortcutInfos.emplace_back();
+			info.shortcut = shortcut;
+			info.profileIdx = profileIdx;
+			info.windowedMode = windowedMode;
+
+			if (ShortcutHelper::CheckShortcut(shortcut) != ShortcutError::NoError) {
+				info.isError = true;
+			} else {
+				const int id = PROFILE_HOTKEY_ID_BASE + int(_profileShortcutInfos.size() - 1);
+				info.isError = !RegisterHotKey(_hwndHotkey.get(), id, GetHotkeyModifiers(shortcut), shortcut.code);
+			}
+
+			if (info.isError) {
+				Logger::Get().Win32Error(fmt::format("注册配置文件热键失败: 配置文件 {}，{}",
+					profileIdx, shortcut.ToString()));
+			}
+		}
+	}
+}
+
+void ShortcutService::_FireProfileShortcut(size_t infoIdx) {
+	using namespace std::chrono;
+
+	_ProfileShortcutInfo& info = _profileShortcutInfos[infoIdx];
+
+	// 限制触发频率
+	auto cur = steady_clock::now();
+	if (duration_cast<milliseconds>(cur - info.lastFireTime).count() < 100) {
+		return;
+	}
+
+	info.lastFireTime = cur;
+	ProfileShortcutActivated.Invoke(info.profileIdx, info.windowedMode);
 }
 
 void ShortcutService::_FireShortcut(ShortcutAction action) {
@@ -227,6 +340,46 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 			// 防止触发由 RegisterHotKey 注册的热键
 			return 1;
 		}
+	}
+
+	// 查找匹配的配置文件热键
+	for (size_t i = 0; i < that._profileShortcutInfos.size(); ++i) {
+		const _ProfileShortcutInfo& info = that._profileShortcutInfos[i];
+		if (info.isError || info.shortcut != curKeys) {
+			continue;
+		}
+
+		if (!that._keyboardHookShortcutActivated) {
+			that._keyboardHookShortcutActivated = true;
+
+			// 热键可能在回调执行前被重新注册，因此按配置文件查找而不是按索引
+			const int profileIdx = info.profileIdx;
+			const bool windowedMode = info.windowedMode;
+			App::Get().Dispatcher().TryEnqueue([profileIdx, windowedMode]() {
+				ShortcutService& service = Get();
+				for (size_t j = 0; j < service._profileShortcutInfos.size(); ++j) {
+					const _ProfileShortcutInfo& curInfo = service._profileShortcutInfos[j];
+					if (curInfo.profileIdx == profileIdx && curInfo.windowedMode == windowedMode) {
+						Logger::Get().Info(fmt::format("配置文件热键 {} 激活（Keyboard Hook）", profileIdx));
+						service._FireProfileShortcut(j);
+						break;
+					}
+				}
+			});
+
+			if (curKeys.win && !curKeys.ctrl && !curKeys.shift && !curKeys.alt) {
+				// 防止激活开始菜单
+				INPUT dummyEvent{};
+				dummyEvent.type = INPUT_KEYBOARD;
+				dummyEvent.ki.wVk = 0xFF;
+				dummyEvent.ki.dwFlags = KEYEVENTF_KEYUP;
+				dummyEvent.ki.dwExtraInfo = 1;
+				SendInput(1, &dummyEvent, sizeof(INPUT));
+			}
+		}
+
+		// 防止触发由 RegisterHotKey 注册的热键
+		return 1;
 	}
 
 	that._keyboardHookShortcutActivated = false;

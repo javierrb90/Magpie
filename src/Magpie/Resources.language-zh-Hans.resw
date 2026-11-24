@@ -1135,4 +1135,25 @@
   <data name="Root_ProfileFlyout_DeleteConfirmationText" xml:space="preserve">
     <value>确定删除“{}”？</value>
   </data>
+  <data name="Profile_General_ScaleShortcut.Header" xml:space="preserve">
+    <value>全屏缩放快捷键</value>
+  </data>
+  <data name="Profile_General_ScaleShortcut.Description" xml:space="preserve">
+    <value>使用此配置文件缩放前台窗口，忽略匹配规则</value>
+  </data>
+  <data name="Profile_General_ScaleShortcut_ShortcutControl.Title" xml:space="preserve">
+    <value>此配置文件的全屏缩放快捷键</value>
+  </data>
+  <data name="Profile_General_WindowedModeScaleShortcut.Header" xml:space="preserve">
+    <value>窗口模式缩放快捷键</value>
+  </data>
+  <data name="Profile_General_WindowedModeScaleShortcut.Description" xml:space="preserve">
+    <value>使用此配置文件以窗口模式缩放前台窗口，忽略匹配规则</value>
+  </data>
+  <data name="Profile_General_WindowedModeScaleShortcut_ShortcutControl.Title" xml:space="preserve">
+    <value>此配置文件的窗口模式缩放快捷键</value>
+  </data>
+  <data name="ShortcutDialog_Clear" xml:space="preserve">
+    <value>清除</value>
+  </data>
 </root>

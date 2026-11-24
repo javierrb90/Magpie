@@ -919,4 +919,25 @@
   <data name="Profile_WindowedScaling_InitialScaleFactor_Custom.Content" xml:space="preserve">
     <value>Personalizado</value>
   </data>
+  <data name="Profile_General_ScaleShortcut.Header" xml:space="preserve">
+    <value>Atajo de escalado a pantalla completa</value>
+  </data>
+  <data name="Profile_General_ScaleShortcut.Description" xml:space="preserve">
+    <value>Escala la ventana en primer plano con este perfil, sin importar sus reglas de coincidencia</value>
+  </data>
+  <data name="Profile_General_ScaleShortcut_ShortcutControl.Title" xml:space="preserve">
+    <value>Atajo de escalado a pantalla completa de este perfil</value>
+  </data>
+  <data name="Profile_General_WindowedModeScaleShortcut.Header" xml:space="preserve">
+    <value>Atajo de escalado en ventana</value>
+  </data>
+  <data name="Profile_General_WindowedModeScaleShortcut.Description" xml:space="preserve">
+    <value>Escala la ventana en primer plano en modo ventana con este perfil, sin importar sus reglas de coincidencia</value>
+  </data>
+  <data name="Profile_General_WindowedModeScaleShortcut_ShortcutControl.Title" xml:space="preserve">
+    <value>Atajo de escalado en ventana de este perfil</value>
+  </data>
+  <data name="ShortcutDialog_Clear" xml:space="preserve">
+    <value>Quitar</value>
+  </data>
 </root>

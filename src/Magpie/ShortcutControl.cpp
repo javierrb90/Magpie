@@ -10,6 +10,7 @@
 #include "LocalizationService.h"
 #include "Logger.h"
 #include "MainWindow.h"
+#include "ProfileService.h"
 #include "ShortcutHelper.h"
 #include "ShortcutService.h"
 
@@ -47,6 +48,12 @@ ShortcutControl* ShortcutControl::_that = nullptr;
 ShortcutControl::ShortcutControl() {
 	_shortcutChangedRevoker = AppSettings::Get().ShortcutChanged(
 		auto_revoke, std::bind_front(&ShortcutControl::_AppSettings_OnShortcutChanged, this));
+	_profileShortcutChangedRevoker = ProfileService::Get().ProfileShortcutChanged(
+		auto_revoke, [this]() {
+			if (_IsProfileShortcut()) {
+				_UpdateShortcut();
+			}
+		});
 }
 
 fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEventArgs const&) {
@@ -66,6 +73,10 @@ fire_and_forget ShortcutControl::EditButton_Click(IInspectable const&, RoutedEve
 		LocalizationService& ls = LocalizationService::Get();
 		_shortcutDialog.PrimaryButtonText(ls.GetLocalizedString(L"ShortcutDialog_Save"));
 		_shortcutDialog.CloseButtonText(ls.GetLocalizedString(L"ShortcutDialog_Cancel"));
+		if (_IsProfileShortcut()) {
+			// 配置文件热键是可选的，允许清除
+			_shortcutDialog.SecondaryButtonText(ls.GetLocalizedString(L"ShortcutDialog_Clear"));
+		}
 		_shortcutDialog.DefaultButton(ContentDialogButton::Primary);
 		// 在 Closing 事件中设置热键而不是等待 ShowAsync 返回
 		// 这两个时间点有一定间隔，用户在这段时间内的按键不应处理
@@ -107,6 +118,17 @@ void ShortcutControl::Action(ShortcutAction value) {
 	_UpdateShortcut();
 }
 
+void ShortcutControl::ProfileIndex(int value) {
+	if (_profileIdx == value) {
+		return;
+	}
+
+	_profileIdx = value;
+	RaisePropertyChanged(L"ProfileIndex");
+
+	_UpdateShortcut();
+}
+
 void ShortcutControl::Title(hstring value) {
 	if (_title == value) {
 		return;
@@ -124,8 +146,16 @@ void ShortcutControl::_ShortcutDialog_Closing(ContentDialog const&, ContentDialo
 	_keyboardHook.reset();
 	ShortcutService::Get().StartKeyboardHook();
 
-	if (args.Result() == ContentDialogResult::Primary) {
-		AppSettings::Get().SetShortcut(Action(), _previewShortcut);
+	if (args.Result() == ContentDialogResult::Secondary && _IsProfileShortcut()) {
+		ProfileService::Get().SetProfileShortcut(
+			_profileIdx, Action() == ShortcutAction::WindowedModeScale, Shortcut{});
+	} else if (args.Result() == ContentDialogResult::Primary) {
+		if (_IsProfileShortcut()) {
+			ProfileService::Get().SetProfileShortcut(
+				_profileIdx, Action() == ShortcutAction::WindowedModeScale, _previewShortcut);
+		} else {
+			AppSettings::Get().SetShortcut(Action(), _previewShortcut);
+		}
 	}
 }
 
@@ -247,18 +277,29 @@ LRESULT ShortcutControl::_LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM 
 }
 
 void ShortcutControl::_AppSettings_OnShortcutChanged(ShortcutAction action) {
-	if (action == Action()) {
+	if (!_IsProfileShortcut() && action == Action()) {
 		_UpdateShortcut();
 	}
 }
 
 void ShortcutControl::_UpdateShortcut() {
 	ShortcutAction action = Action();
-	const Shortcut& shortcut = AppSettings::Get().GetShortcut(action);
+	if (action == ShortcutAction::COUNT_OR_NONE) {
+		return;
+	}
 
-	_shortcut = shortcut;
-	// 此时 ShortcutService 中的回调已执行
-	_isError = ShortcutService::Get().IsError(action);
+	if (_IsProfileShortcut()) {
+		const bool windowedMode = action == ShortcutAction::WindowedModeScale;
+		_shortcut = ProfileService::Get().GetProfileShortcut(_profileIdx, windowedMode);
+		// 空热键允许存在（表示未设置），不显示为错误
+		_isError = !_shortcut.IsEmpty() &&
+			ShortcutService::Get().IsProfileShortcutError(_profileIdx, windowedMode);
+	} else {
+		_shortcut = AppSettings::Get().GetShortcut(action);
+		// 此时 ShortcutService 中的回调已执行
+		_isError = ShortcutService::Get().IsError(action);
+	}
+	
 	KeysControl().ItemsSource(ToKeys(_shortcut, _isError));
 }
 

@@ -259,6 +259,27 @@ Profile& ProfileService::GetProfile(uint32_t idx) noexcept {
 	return AppSettings::Get().Profiles()[idx];
 }
 
+Profile& ProfileService::GetProfileOrDefault(int profileIdx) noexcept {
+	return profileIdx < 0 ? DefaultProfile() : GetProfile((uint32_t)profileIdx);
+}
+
+const Shortcut& ProfileService::GetProfileShortcut(int profileIdx, bool windowedMode) noexcept {
+	const Profile& profile = GetProfileOrDefault(profileIdx);
+	return windowedMode ? profile.windowedModeScaleShortcut : profile.scaleShortcut;
+}
+
+void ProfileService::SetProfileShortcut(int profileIdx, bool windowedMode, const Shortcut& value) {
+	Profile& profile = GetProfileOrDefault(profileIdx);
+	Shortcut& shortcut = windowedMode ? profile.windowedModeScaleShortcut : profile.scaleShortcut;
+	if (shortcut == value) {
+		return;
+	}
+
+	shortcut = value;
+	ProfileShortcutChanged.Invoke();
+	AppSettings::Get().SaveAsync();
+}
+
 uint32_t ProfileService::GetProfileCount() noexcept {
 	return (uint32_t)AppSettings::Get().Profiles().size();
 }

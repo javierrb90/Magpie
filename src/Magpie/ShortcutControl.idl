@@ -11,6 +11,9 @@ namespace Magpie {
 		ShortcutControl();
 
 		ShortcutAction Action;
+		// 设置后热键属于该配置文件（-1 为默认配置），Action 为 Scale 或 WindowedModeScale。
+		// 未设置时（Int32 最小值）为全局热键。
+		Int32 ProfileIndex;
 		String Title;
 	}
 }

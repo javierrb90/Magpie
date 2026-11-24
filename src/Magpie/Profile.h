@@ -1,5 +1,6 @@
 #pragma once
 #include "ScalingOptions.h"
+#include "Shortcut.h"
 
 namespace Magpie {
 
@@ -119,6 +120,10 @@ struct Profile {
 	OutputAlignment outputAlignment = OutputAlignment::Center;
 
 	ScalingFlags scalingFlags = ScalingFlags::AdjustCursorSpeed;
+
+	// 每个配置文件独立的热键：使用此配置文件缩放前台窗口（不复制到新配置文件）
+	Shortcut scaleShortcut;
+	Shortcut windowedModeScaleShortcut;
 
 	bool isPackaged = false;
 	bool isCroppingEnabled = false;

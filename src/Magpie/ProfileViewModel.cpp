@@ -209,6 +209,7 @@ void ProfileViewModel::MoveUp() {
 
 	RaisePropertyChanged(L"CanMoveUp");
 	RaisePropertyChanged(L"CanMoveDown");
+	RaisePropertyChanged(L"ProfileIndex");
 }
 
 void ProfileViewModel::MoveDown() {
@@ -226,6 +227,7 @@ void ProfileViewModel::MoveDown() {
 
 	RaisePropertyChanged(L"CanMoveUp");
 	RaisePropertyChanged(L"CanMoveDown");
+	RaisePropertyChanged(L"ProfileIndex");
 }
 
 void ProfileViewModel::Delete() {
