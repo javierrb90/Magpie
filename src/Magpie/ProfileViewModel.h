@@ -67,9 +67,7 @@ struct ProfileViewModel : ProfileViewModelT<ProfileViewModel>,
 
 	bool IsCaptureMethodDesktopDuplication() const noexcept;
 
-	bool IsAppProfile() const noexcept {
-		return !_isDefaultProfile && !_data->IsGeneral();
-	}
+	bool IsAppProfile() const noexcept;
 
 	int ProfileIndex() const noexcept {
 

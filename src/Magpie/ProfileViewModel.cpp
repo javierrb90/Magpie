@@ -61,6 +61,10 @@ bool ProfileViewModel::IsNotDefaultProfile() const noexcept {
 	return !_data->name.empty();
 }
 
+bool ProfileViewModel::IsAppProfile() const noexcept {
+	return !_isDefaultProfile && !_data->IsGeneral();
+}
+
 bool ProfileViewModel::IsNotPackaged() const noexcept {
 	// 只用于“更改启动程序”，通用配置文件没有程序
 	return !_data->isPackaged && !_data->IsGeneral();
