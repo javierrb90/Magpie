@@ -289,6 +289,11 @@ void ShortcutControl::_UpdateShortcut() {
 	}
 
 	if (_IsProfileShortcut()) {
+		if (_profileIdx >= (int)ProfileService::Get().GetProfileCount()) {
+			// 配置文件已被删除
+			return;
+		}
+
 		const bool windowedMode = action == ShortcutAction::WindowedModeScale;
 		_shortcut = ProfileService::Get().GetProfileShortcut(_profileIdx, windowedMode);
 		// 空热键允许存在（表示未设置），不显示为错误

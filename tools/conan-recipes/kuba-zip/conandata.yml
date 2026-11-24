@@ -1,0 +1,5 @@
+sources:
+  "0.3.2":
+    url: "https://github.com/kuba--/zip/archive/v0.3.2.tar.gz"
+    # Hash del tarball regenerado por GitHub (el original 0c33740a... ya no coincide)
+    sha256: "ebf489143d89761bec01353d2b3ea74b136ee5426a91a8b5bfbc0b685e49af7b"

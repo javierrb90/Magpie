@@ -59,6 +59,19 @@ print("正在编译", flush=True)
 
 os.chdir(os.path.dirname(__file__) + "\\..")
 
+# Fork: exportar recetas de Conan corregidas (p. ej. hashes de tarballs de GitHub que
+# han cambiado) antes de compilar, para que tengan prioridad sobre las de ConanCenter.
+recipesDir = "tools\\conan-recipes"
+if os.path.isdir(recipesDir):
+    for name in os.listdir(recipesDir):
+        recipeDir = os.path.join(recipesDir, name)
+        with open(os.path.join(recipeDir, "conandata.yml"), encoding="utf-8") as f:
+            versions = [line.strip()[1:-2] for line in f if line.startswith('  "')]
+        for version in versions:
+            print(f"Exportando receta {name}/{version}", flush=True)
+            if subprocess.run(f'conan export "{recipeDir}" --name={name} --version={version}').returncode != 0:
+                raise Exception(f"No se pudo exportar la receta {name}/{version}")
+
 p = subprocess.run("git rev-parse --short HEAD", capture_output=True)
 commitId = str(p.stdout, encoding="utf-8")[0:-1]
 
