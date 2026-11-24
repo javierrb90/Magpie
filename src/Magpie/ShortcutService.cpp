@@ -347,8 +347,8 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 
 	// 查找匹配的配置文件热键
 	for (size_t i = 0; i < that._profileShortcutInfos.size(); ++i) {
-		const _ProfileShortcutInfo& info = that._profileShortcutInfos[i];
-		if (info.isError || info.shortcut != curKeys) {
+		const _ProfileShortcutInfo& profileInfo = that._profileShortcutInfos[i];
+		if (profileInfo.isError || profileInfo.shortcut != curKeys) {
 			continue;
 		}
 
@@ -356,8 +356,8 @@ LRESULT CALLBACK ShortcutService::_LowLevelKeyboardProc(int nCode, WPARAM wParam
 			that._keyboardHookShortcutActivated = true;
 
 			// 热键可能在回调执行前被重新注册，因此按配置文件查找而不是按索引
-			const int profileIdx = info.profileIdx;
-			const bool windowedMode = info.windowedMode;
+			const int profileIdx = profileInfo.profileIdx;
+			const bool windowedMode = profileInfo.windowedMode;
 			App::Get().Dispatcher().TryEnqueue([profileIdx, windowedMode]() {
 				ShortcutService& service = Get();
 				for (size_t j = 0; j < service._profileShortcutInfos.size(); ++j) {
