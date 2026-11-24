@@ -416,6 +416,14 @@ void RootPage::_UpdateTheme(bool updateIcons) {
 }
 
 fire_and_forget RootPage::_LoadIcon(MUXC::NavigationViewItem const& item, const Profile& profile) {
+	if (profile.IsGeneral()) {
+		// 通用配置文件使用键盘图标
+		FontIcon icon;
+		icon.Glyph(L"\uE765");
+		item.Icon(icon);
+		co_return;
+	}
+
 	weak_ref<MUXC::NavigationViewItem> weakRef(item);
 
 	bool preferLightTheme = App::Get().IsLightTheme();

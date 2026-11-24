@@ -905,13 +905,16 @@ bool AppSettings::_LoadProfile(
 			return false;
 		}
 
-		if (!JsonHelper::ReadString(profileObj, "pathRule", profile.pathRule, true)
-			|| profile.pathRule.empty()) {
+		if (!JsonHelper::ReadString(profileObj, "pathRule", profile.pathRule, true)) {
 			return false;
 		}
 
-		if (!JsonHelper::ReadString(profileObj, "classNameRule", profile.classNameRule, true)
-			|| profile.classNameRule.empty()) {
+		if (!JsonHelper::ReadString(profileObj, "classNameRule", profile.classNameRule, true)) {
+			return false;
+		}
+
+		// 两者都为空表示通用配置文件
+		if (profile.pathRule.empty() != profile.classNameRule.empty()) {
 			return false;
 		}
 

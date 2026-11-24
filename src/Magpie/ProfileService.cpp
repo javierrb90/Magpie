@@ -161,6 +161,22 @@ bool ProfileService::AddProfile(
 	return true;
 }
 
+void ProfileService::AddGeneralProfile(std::wstring_view name, int copyFrom) {
+	assert(!name.empty());
+
+	std::vector<Profile>& profiles = AppSettings::Get().Profiles();
+	Profile& profile = profiles.emplace_back();
+
+	profile.Copy(copyFrom < 0 ? DefaultProfile() : profiles[copyFrom]);
+	profile.name = name;
+	// 通用配置文件没有匹配规则，也不会自动缩放
+	profile.autoScale = AutoScale::Disabled;
+
+	ProfileAdded.Invoke(std::ref(profile));
+
+	AppSettings::Get().SaveAsync();
+}
+
 void ProfileService::RenameProfile(uint32_t profileIdx, std::wstring_view newName) {
 	assert(!newName.empty());
 	AppSettings::Get().Profiles()[profileIdx].name = newName;
@@ -214,6 +230,11 @@ const Profile* ProfileService::GetProfileForWindow(HWND hWnd, bool forAutoScale)
 
 	for (const Profile& profile : profiles) {
 		if (forAutoScale && profile.autoScale == AutoScale::Disabled) {
+			continue;
+		}
+
+		// 通用配置文件不匹配任何窗口
+		if (profile.pathRule.empty()) {
 			continue;
 		}
 

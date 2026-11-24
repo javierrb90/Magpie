@@ -8,5 +8,8 @@ namespace Magpie {
 		Boolean IsConfirmButtonEnabled { get; };
 		Boolean IsNoCandidateWindow { get; };
 		Boolean IsAnyCandidateWindow { get; };
+		// 通用配置文件不需要选择窗口
+		Boolean IsGeneralProfile;
+		Boolean IsNotGeneralProfile { get; };
 	}
 }

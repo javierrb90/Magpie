@@ -62,7 +62,8 @@ bool ProfileViewModel::IsNotDefaultProfile() const noexcept {
 }
 
 bool ProfileViewModel::IsNotPackaged() const noexcept {
-	return !_data->isPackaged;
+	// 只用于“更改启动程序”，通用配置文件没有程序
+	return !_data->isPackaged && !_data->IsGeneral();
 }
 
 void ProfileViewModel::OpenProgramLocation() const noexcept {
@@ -967,6 +968,10 @@ fire_and_forget ProfileViewModel::_LoadIcon() {
 		imageIcon.Source(imageSource);
 
 		_icon = std::move(imageIcon);
+	} else if (_data && _data->IsGeneral()) {
+		FontIcon icon;
+		icon.Glyph(L"\uE765");
+		_icon = std::move(icon);
 	} else {
 		_icon = nullptr;
 	}

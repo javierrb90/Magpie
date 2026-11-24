@@ -1156,4 +1156,7 @@
   <data name="ShortcutDialog_Clear" xml:space="preserve">
     <value>清除</value>
   </data>
+  <data name="Root_NewProfileFlyout_GeneralProfile.Content" xml:space="preserve">
+    <value>通用配置文件（不关联窗口，仅通过快捷键使用）</value>
+  </data>
 </root>

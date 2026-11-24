@@ -3,6 +3,8 @@ namespace Magpie {
 		Windows.UI.Xaml.Controls.IconElement Icon { get; };
 		String Name { get; };
 		Boolean IsNotDefaultProfile { get; };
+		// 关联某个程序的配置文件（既不是默认配置也不是通用配置文件）
+		Boolean IsAppProfile { get; };
 		// -1 为默认配置
 		Int32 ProfileIndex { get; };
 

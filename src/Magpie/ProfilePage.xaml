@@ -19,6 +19,7 @@
 			                        Visibility="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}">
 				<Button x:Uid="Profile_Launch"
 				        Click="{x:Bind ViewModel.Launch}"
+				        Visibility="{x:Bind ViewModel.IsAppProfile, Mode=OneTime}"
 				        Content="&#xE768;"
 				        IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}" />
 				<Button x:Name="MoreOptionsButton"
@@ -29,6 +30,7 @@
 						            ShouldConstrainToRootBounds="False">
 							<MenuFlyoutItem x:Uid="Profile_MoreOptions_OpenProgramLocation"
 							                Click="{x:Bind ViewModel.OpenProgramLocation}"
+							                Visibility="{x:Bind ViewModel.IsAppProfile, Mode=OneTime}"
 							                IsEnabled="{x:Bind ViewModel.IsProgramExist, Mode=OneTime}">
 								<MenuFlyoutItem.Icon>
 									<FontIcon Glyph="&#xE8DA;" />
@@ -161,7 +163,7 @@
 				              Severity="Warning" />
 				<local:SettingsCard x:Name="AutoScaleSettingsCard"
 				                    x:Uid="Profile_General_AutoScale"
-				                    x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}"
+				                    x:Load="{x:Bind ViewModel.IsAppProfile, Mode=OneTime}"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE945;" />
@@ -657,7 +659,7 @@
 			<local:SettingsGroup x:Uid="Profile_Advanced">
 				<local:SettingsCard x:Name="LaunchParametersSettingsCard"
 				                    x:Uid="Profile_Advanced_LaunchParameters"
-				                    x:Load="{x:Bind ViewModel.IsNotDefaultProfile, Mode=OneTime}"
+				                    x:Load="{x:Bind ViewModel.IsAppProfile, Mode=OneTime}"
 				                    IsWrapEnabled="True">
 					<local:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE756;" />

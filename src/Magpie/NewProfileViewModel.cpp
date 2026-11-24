@@ -128,6 +128,7 @@ void NewProfileViewModel::PrepareForOpen() {
 	RaisePropertyChanged(L"IsNoCandidateWindow");
 	RaisePropertyChanged(L"IsAnyCandidateWindow");
 
+	IsGeneralProfile(false);
 	CandidateWindowIndex(-1);
 	if (candidateWindows.size() == 1) {
 		candidateWindows[0]->PropertyChanged([this](IInspectable const&, PropertyChangedEventArgs const& args) {
@@ -167,11 +168,34 @@ void NewProfileViewModel::Name(const hstring& value) noexcept {
 	_name = value;
 	RaisePropertyChanged(L"Name");
 
-	_IsConfirmButtonEnabled(!value.empty() && _candidateWindowIndex >= 0);
+	_UpdateIsConfirmButtonEnabled();
+}
+
+void NewProfileViewModel::IsGeneralProfile(bool value) {
+	if (_isGeneralProfile == value) {
+		return;
+	}
+
+	_isGeneralProfile = value;
+	RaisePropertyChanged(L"IsGeneralProfile");
+	RaisePropertyChanged(L"IsNotGeneralProfile");
+	RaisePropertyChanged(L"IsNoCandidateWindow");
+	RaisePropertyChanged(L"IsAnyCandidateWindow");
+
+	_UpdateIsConfirmButtonEnabled();
 }
 
 void NewProfileViewModel::Confirm() const noexcept {
-	if (_candidateWindowIndex < 0 || _name.empty()) {
+	if (_name.empty()) {
+		return;
+	}
+
+	if (_isGeneralProfile) {
+		ProfileService::Get().AddGeneralProfile(_name, _profileIndex - 1);
+		return;
+	}
+
+	if (_candidateWindowIndex < 0) {
 		return;
 	}
 

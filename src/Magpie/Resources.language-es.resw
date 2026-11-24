@@ -940,4 +940,7 @@
   <data name="ShortcutDialog_Clear" xml:space="preserve">
     <value>Quitar</value>
   </data>
+  <data name="Root_NewProfileFlyout_GeneralProfile.Content" xml:space="preserve">
+    <value>Perfil general (sin ventana, solo por atajo)</value>
+  </data>
 </root>

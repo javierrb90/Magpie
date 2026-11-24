@@ -42,17 +42,33 @@ struct NewProfileViewModel : NewProfileViewModelT<NewProfileViewModel>,
 		return _isConfirmButtonEnabled;
 	}
 
+	// 用于显示“没有可选窗口”的提示，通用配置文件不需要窗口
 	bool IsNoCandidateWindow() const noexcept {
-		return !_candidateWindows || _candidateWindows.Size() == 0;
+		return !_isGeneralProfile && (!_candidateWindows || _candidateWindows.Size() == 0);
 	}
 
+	// 用于显示表单
 	bool IsAnyCandidateWindow() const noexcept {
-		return _candidateWindows && _candidateWindows.Size() != 0;
+		return !IsNoCandidateWindow();
+	}
+
+	bool IsGeneralProfile() const noexcept {
+		return _isGeneralProfile;
+	}
+
+	void IsGeneralProfile(bool value);
+
+	bool IsNotGeneralProfile() const noexcept {
+		return !_isGeneralProfile;
 	}
 
 	void Confirm() const noexcept;
 
 private:
+	void _UpdateIsConfirmButtonEnabled() noexcept {
+		_IsConfirmButtonEnabled(!_name.empty() && (_isGeneralProfile || _candidateWindowIndex >= 0));
+	}
+
 	void _IsConfirmButtonEnabled(bool value) noexcept {
 		if (_isConfirmButtonEnabled == value) {
 			return;
@@ -68,6 +84,7 @@ private:
 	IVector<IInspectable> _profiles{ nullptr };
 	int _profileIndex = 0;
 	bool _isConfirmButtonEnabled = false;
+	bool _isGeneralProfile = false;
 };
 
 }

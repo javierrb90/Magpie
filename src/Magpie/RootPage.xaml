@@ -90,6 +90,9 @@
 					<FlyoutBase.AttachedFlyout>
 						<Flyout x:Name="NewProfileFlyout"
 						        Placement="Right">
+							<local:SimpleStackPanel Spacing="4">
+							<CheckBox x:Uid="Root_NewProfileFlyout_GeneralProfile"
+							          IsChecked="{x:Bind NewProfileViewModel.IsGeneralProfile, Mode=TwoWay}" />
 							<Grid>
 								<ContentControl Grid.RowSpan="2"
 								                MinWidth="240"
@@ -119,6 +122,7 @@
 										<ComboBox x:Name="CandidateWindowsComboBox"
 										          x:Uid="Root_NewProfileFlyout_ComboBox"
 										          Margin="0,0,0,10"
+										          Visibility="{x:Bind NewProfileViewModel.IsNotGeneralProfile, Mode=OneWay}"
 										          HorizontalAlignment="Stretch"
 										          DropDownOpened="ComboBox_DropDownOpened"
 										          ItemsSource="{x:Bind NewProfileViewModel.CandidateWindows, Mode=OneWay}"
@@ -185,6 +189,7 @@
 									</local:SimpleStackPanel>
 								</local:SimpleStackPanel>
 							</Grid>
+							</local:SimpleStackPanel>
 						</Flyout>
 					</FlyoutBase.AttachedFlyout>
 				</muxc:NavigationViewItem>

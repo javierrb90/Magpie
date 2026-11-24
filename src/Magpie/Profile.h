@@ -72,6 +72,11 @@ struct Profile {
 
 	void SetScreenshotsDir(const std::filesystem::path& value) noexcept;
 
+	// 通用配置文件（fork 新增）: 有名字但没有匹配规则，不关联任何窗口，只能通过热键使用
+	bool IsGeneral() const noexcept {
+		return !name.empty() && pathRule.empty();
+	}
+
 	bool CanLaunch() const noexcept;
 
 	void Launch() const noexcept;

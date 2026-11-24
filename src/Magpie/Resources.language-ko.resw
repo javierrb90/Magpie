@@ -1141,4 +1141,7 @@
   <data name="ShortcutDialog_Clear" xml:space="preserve">
     <value>Clear</value>
   </data>
+  <data name="Root_NewProfileFlyout_GeneralProfile.Content" xml:space="preserve">
+    <value>General profile (no window, hotkey only)</value>
+  </data>
 </root>

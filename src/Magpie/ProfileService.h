@@ -16,6 +16,9 @@ public:
 	// copyFrom < 0 表示复制默认配置
 	bool AddProfile(bool isPackaged, std::wstring_view pathOrAumid, std::wstring_view className, std::wstring_view name, int copyFrom);
 
+	// 添加不关联任何窗口的通用配置文件，copyFrom < 0 表示复制默认配置
+	void AddGeneralProfile(std::wstring_view name, int copyFrom);
+
 	void RenameProfile(uint32_t profileIdx, std::wstring_view newName);
 
 	void RemoveProfile(uint32_t profileIdx);
